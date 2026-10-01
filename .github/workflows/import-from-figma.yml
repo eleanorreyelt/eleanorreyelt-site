@@ -1,0 +1,29 @@
+name: Import from Figma
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out destination repository
+        uses: actions/checkout@v4
+
+      - name: Import project from Figma Make
+        run: |
+          git clone --depth 1 \
+            "https://api.figma.com/git/make/file/2404697605470167811/public/code/9069c402-7b21-44e8-8be8-f699c6f1cf61.git" \
+            /tmp/figma-project
+
+          rsync -a --exclude=".git" /tmp/figma-project/ ./
+
+          git add -A
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "Import site from Figma Make"
+
+          git push origin HEAD:main
